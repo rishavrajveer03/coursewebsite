@@ -1,0 +1,2818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EduStream – Advanced Learning Platform</title>
+  <style>
+    
+    :root {
+      --bg: #0b0c0f;
+      --panel: #16181d;
+      --text: #e6e8ec;
+      --muted: #9aa4b2;
+      --brand: #7c5cff;
+      --accent: #30d158;
+      --warn: #ff9f0a;
+      --danger: #ff453a;
+      --ring: rgba(124,92,255,0.25);
+      --border: #252a33;
+      --shadow: 0 6px 24px rgba(0,0,0,0.25);
+      --gradient: linear-gradient(135deg, var(--brand), #9c7eff);
+    }
+
+    /* Light theme values */
+    :root.light {
+      --bg: #f7f8fb;
+      --panel: #ffffff;
+      --text: #12141a;
+      --muted: #5b6573;
+      --brand: #6b4eff;
+      --accent: #0a84ff;
+      --warn: #c97a00;
+      --danger: #d12b1f;
+      --ring: rgba(10,132,255,0.25);
+      --border: #e9edf3;
+      --shadow: 0 6px 24px rgba(16,24,40,0.08);
+      --gradient: linear-gradient(135deg, var(--brand), #8b6eff);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+
+    /* Animations */
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+    @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(124,92,255,0.3); } 50% { box-shadow: 0 0 30px rgba(124,92,255,0.6); } }
+    
+    .animate-in { animation: fadeIn 0.5s ease-out; }
+    .animate-slide { animation: slideIn 0.3s ease-out; }
+    .animate-pulse { animation: pulse 2s infinite; }
+    .animate-glow { animation: glow 3s infinite; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(0deg, rgba(0,0,0,0.0), rgba(0,0,0,0.0)), var(--panel);
+      border-bottom: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(20px);
+    }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 16px; }
+    .row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .grow { flex: 1 1 auto; }
+    .brand { font-weight: 800; letter-spacing: 0.2px; background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .brand b { color: var(--brand); }
+
+    .btn {
+      appearance: none; border: 1px solid var(--border); background: var(--panel);
+      color: var(--text); padding: 10px 14px; border-radius: 12px;
+      cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 0 rgba(0,0,0,0.04);
+      position: relative; overflow: hidden;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+    .btn:active { transform: translateY(0); }
+    .btn.primary { background: var(--gradient); border-color: transparent; color: #fff; }
+    .btn.success { background: var(--accent); border-color: transparent; color: #fff; }
+    .btn.warn { background: var(--warn); border-color: transparent; color: #fff; }
+    .btn.danger { background: var(--danger); border-color: transparent; color: #fff; }
+    .btn.ghost { background: transparent; border: 2px dashed var(--border); }
+    .btn.floating { position: fixed; bottom: 24px; right: 24px; border-radius: 50%; width: 56px; height: 56px; padding: 0; z-index: 50; }
+
+    .pill { padding: 6px 12px; border-radius: 999px; background: var(--ring); border: 1px solid var(--border); font-size: 12px; font-weight: 500; }
+    .badge { 
+      display: inline-flex; align-items: center; gap: 4px; font-size: 11px; padding: 4px 8px; 
+      border-radius: 6px; border: 1px solid var(--border); background: var(--panel); color: var(--muted); 
+      text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;
+    }
+    .badge.pro { background: var(--gradient); color: white; border: none; }
+    .badge.new { background: var(--accent); color: white; border: none; }
+
+    .input, select, textarea {
+      width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px;
+      background: var(--panel); color: var(--text); outline: none; transition: all 0.2s;
+      font-family: inherit; resize: none;
+    }
+    .input:focus { box-shadow: 0 0 0 6px var(--ring); border-color: var(--brand); }
+    .input.error { border-color: var(--danger); box-shadow: 0 0 0 6px rgba(255,69,58,0.2); }
+
+    .grid { display: grid; gap: 16px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid.cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    @media (max-width: 1024px) { .grid.cols-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 680px) { .grid.cols-2, .grid.cols-3, .grid.cols-4 { grid-template-columns: 1fr; } }
+
+    .card { 
+      background: var(--panel); border: 1px solid var(--border); border-radius: 16px; 
+      padding: 20px; box-shadow: var(--shadow); transition: all 0.3s ease; position: relative; overflow: hidden; 
+    }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.15); }
+    .card.glass { backdrop-filter: blur(20px); background: rgba(255,255,255,0.05); }
+    .card.premium { background: var(--gradient); color: white; border: none; }
+    .card h3 { margin: 0 0 12px; font-weight: 700; }
+    .card .tag { position: absolute; top: 16px; right: 16px; }
+
+    nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    nav.tabs button {
+      padding: 12px 18px; border-radius: 12px; border: 1px solid var(--border);
+      background: var(--panel); cursor: pointer; color: var(--text); transition: all 0.2s ease;
+      font-weight: 500; position: relative;
+    }
+    nav.tabs button:hover { background: var(--ring); }
+    nav.tabs button.active { 
+      background: var(--gradient); color: #fff; border-color: transparent; 
+      box-shadow: 0 4px 12px rgba(124,92,255,0.3);
+    }
+
+    .media-item { position: relative; overflow: hidden; border-radius: 16px; border: 1px solid var(--border); }
+    .media-item video, .media-item audio, .media-item img, .media-item canvas { width: 100%; display: block; border-radius: 16px; }
+    .media-controls { display: flex; gap: 12px; align-items: center; padding-top: 12px; flex-wrap: wrap; }
+    .media-controls input[type=range] { width: 120px; accent-color: var(--brand); }
+    .media-overlay { 
+      position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.7), transparent 50%); 
+      display: flex; align-items: center; justify-content: center; opacity: 0; transition: all 0.3s ease;
+    }
+    .media-item:hover .media-overlay { opacity: 1; }
+
+    .muted { color: var(--muted); }
+    .kpi { display:flex; align-items:center; justify-content:space-between; padding:16px; border:1px dashed var(--border); border-radius:12px; background: var(--ring); }
+
+    .table { width: 100%; border-collapse: collapse; overflow: hidden; border-radius: 12px; border:1px solid var(--border); }
+    .table th, .table td { padding: 12px 16px; border-bottom:1px solid var(--border); text-align: left; }
+    .table th { background: var(--ring); font-weight: 600; }
+    .table tr:hover { background: var(--ring); }
+
+    .toast { 
+      position: fixed; right: 24px; bottom: 24px; background: var(--panel); border:1px solid var(--border); 
+      padding: 16px 20px; border-radius: 12px; box-shadow: var(--shadow); opacity: 0; transform: translateX(100%); 
+      transition: all 0.3s ease; max-width: 400px; z-index: 1000;
+    }
+    .toast.show { opacity: 1; transform: translateX(0); }
+    .toast.success { background: var(--accent); color: white; border: none; }
+    .toast.error { background: var(--danger); color: white; border: none; }
+
+    /* Advanced Components */
+    .modal { 
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; 
+      display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; 
+      transition: all 0.3s ease; backdrop-filter: blur(10px);
+    }
+    .modal.show { opacity: 1; pointer-events: all; }
+    .modal-content { 
+      background: var(--panel); border-radius: 20px; padding: 24px; margin: 20px; 
+      max-width: 600px; max-height: 80vh; overflow-y: auto; transform: scale(0.9); transition: all 0.3s ease;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal.show .modal-content { transform: scale(1); }
+
+    .tabs-content { margin-top: 20px; }
+    .tab-panel { display: none; animation: fadeIn 0.3s ease; }
+    .tab-panel.active { display: block; }
+
+    .progress-bar { 
+      width: 100%; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; 
+      position: relative;
+    }
+    .progress-fill { 
+      height: 100%; background: var(--gradient); transition: width 0.3s ease; 
+      position: relative;
+    }
+    .progress-fill::after {
+      content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+    .notification { 
+      position: fixed; top: 80px; right: 24px; background: var(--panel); border: 1px solid var(--border);
+      padding: 16px; border-radius: 12px; box-shadow: var(--shadow); max-width: 350px; transform: translateX(100%);
+      transition: all 0.3s ease; z-index: 50;
+    }
+    .notification.show { transform: translateX(0); }
+
+    .code-editor { 
+      background: #1e1e2e; border: 1px solid var(--border); border-radius: 12px; 
+      font-family: 'Monaco', 'Consolas', monospace; font-size: 14px; line-height: 1.5;
+      position: relative;
+    }
+    .code-editor textarea { 
+      background: transparent; border: none; outline: none; color: #f8f8f2; 
+      padding: 20px; width: 100%; height: 300px; resize: none; font-family: inherit;
+    }
+    .code-output { 
+      background: #0d1117; color: #e6edf3; padding: 16px; border-radius: 8px; 
+      font-family: monospace; white-space: pre-wrap; min-height: 100px; margin-top: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .search-box { position: relative; }
+    .search-box input { padding-right: 40px; }
+    .search-box .search-icon { 
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%); 
+      color: var(--muted); pointer-events: none;
+    }
+
+    .achievement { 
+      display: flex; align-items: center; gap: 12px; padding: 12px; 
+      background: var(--gradient); color: white; border-radius: 12px; margin: 8px 0;
+      transform: scale(0); transition: all 0.5s ease;
+    }
+    .achievement.show { transform: scale(1); }
+
+    .sr-only { position: absolute; left: -9999px; }
+    .flex { display: flex; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 8px; }
+    .gap-4 { gap: 16px; }
+    .mt-4 { margin-top: 16px; }
+    .mb-4 { margin-bottom: 16px; }
+    .text-sm { font-size: 14px; }
+    .font-bold { font-weight: 700; }
+    .text-center { text-align: center; }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .wrap { padding: 12px; }
+      nav.tabs button { padding: 10px 14px; font-size: 14px; }
+      .card { padding: 16px; }
+      .modal-content { margin: 16px; padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap row">
+      <div class="brand">Edu<b>Stream</b> 
+        <span class="badge pro" id="envBadge">✨ Advanced</span>
+        <span class="badge" id="statusBadge">Online</span>
+      </div>
+      <div class="grow"></div>
+      
+      <!-- Search -->
+      <div class="search-box" style="width: 200px;">
+        <input type="text" placeholder="Search..." id="globalSearch" class="input" style="padding: 8px 40px 8px 12px;" />
+        <span class="search-icon">🔍</span>
+      </div>
+      
+      <button class="btn" id="toggleTheme" aria-label="Toggle dark mode">🌗</button>
+      <button class="btn" id="notificationBtn">🔔 <span id="notifCount" class="badge new" style="display:none;">0</span></button>
+      <div id="authArea" class="row"></div>
+      <button class="btn" id="viewCartBtn">🛒 <span id="cartCount">0</span></button>
+    </div>
+  </header>
+
+  <main class="wrap" style="padding-top:24px; padding-bottom:80px;">
+    <nav class="tabs" id="tabs"></nav>
+
+    <!-- Gallery Panel with Advanced Media Features -->
+    <section id="panel-gallery" class="grid cols-2 animate-in" hidden>
+      <div class="card">
+        <h3>🎬 Interactive Media Player</h3>
+        <p class="muted">Advanced video player with notes, bookmarks, and AI-powered insights.</p>
+        <div class="media-item">
+          <video id="lessonVideo" controls preload="metadata" poster="https://images.pexels.com/photos/414422/pexels-photo-414422.jpeg?auto=compress&cs=tinysrgb&w=1200">
+            <source src="https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+          <canvas id="videoOverlay" height="40" style="position:absolute; left:0; bottom:0; height:40px; pointer-events:none;"></canvas>
+          <div class="media-overlay">
+            <button class="btn primary animate-pulse" id="playPause">▶️ Play</button>
+          </div>
+        </div>
+        <div class="media-controls">
+          <button class="btn ghost" id="addBookmark">📌 Bookmark</button>
+          <button class="btn ghost" id="addNote">📝 Note</button>
+          <label>
+            <span class="sr-only">Volume</span>
+            <input type="range" id="volume" min="0" max="1" step="0.01" />
+          </label>
+          <select id="rate" class="btn">
+            <option value="0.5">0.5×</option>
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+            <option value="2">2×</option>
+          </select>
+          <span class="pill" id="videoTime">00:00 / 00:00</span>
+        </div>
+        
+        <!-- Video Analytics -->
+        <div class="mt-4 grid cols-3">
+          <div class="kpi">
+            <span class="text-sm">Watch Time</span>
+            <span class="font-bold" id="watchTime">0m</span>
+          </div>
+          <div class="kpi">
+            <span class="text-sm">Completion</span>
+            <span class="font-bold" id="completion">0%</span>
+          </div>
+          <div class="kpi">
+            <span class="text-sm">Bookmarks</span>
+            <span class="font-bold" id="bookmarkCount">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🎵 Audio Visualization</h3>
+        <div class="media-item" style="padding:16px;">
+          <audio id="lectureAudio" controls preload="metadata">
+            <source src="https://samplelib.com/lib/preview/mp3/sample-9s.mp3" type="audio/mpeg" />
+            Your browser does not support the audio element.
+          </audio>
+          <canvas id="audioBar" height="120" style="width:100%; margin-top: 12px;"></canvas>
+        </div>
+        <div class="mt-4">
+          <div class="flex justify-between items-center mb-4">
+            <h4>📋 Video Notes</h4>
+            <button class="btn ghost text-sm" id="exportNotes">Export</button>
+          </div>
+          <div id="notesList" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+      </div>
+
+      <!-- AI Insights Panel -->
+      <div class="card glass" style="grid-column: 1 / -1;">
+        <h3>🤖 AI Learning Assistant</h3>
+        <div class="grid cols-2">
+          <div>
+            <h4>💡 Smart Recommendations</h4>
+            <div id="aiRecommendations"></div>
+          </div>
+          <div>
+            <h4>💬 Quick Chat</h4>
+            <div class="flex gap-2">
+              <input type="text" id="aiChatInput" placeholder="Ask me anything..." class="input" />
+              <button class="btn primary" id="sendAiMessage">Send</button>
+            </div>
+            <div id="aiChatHistory" style="height: 120px; overflow-y: auto; margin-top: 12px; padding: 12px; background: var(--ring); border-radius: 8px;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Courses Panel -->
+    <section id="panel-courses" class="grid cols-3 animate-in" hidden>
+      <div class="card premium" style="grid-column:1/-1;">
+        <h3>🎓 Advanced Course Catalog</h3>
+        <p>Discover AI-curated courses with interactive labs and real-world projects.</p>
+        <div class="flex gap-4 mt-4">
+          <div class="search-box" style="flex: 1;">
+            <input type="text" id="courseSearch" placeholder="Search courses..." class="input" />
+            <span class="search-icon">🔍</span>
+          </div>
+          <select id="courseFilter" class="btn">
+            <option value="all">All Levels</option>
+            <option value="beginner">Beginner</option>
+            <option value="intermediate">Intermediate</option>
+            <option value="advanced">Advanced</option>
+          </select>
+          <select id="courseCategory" class="btn">
+            <option value="all">All Categories</option>
+            <option value="programming">Programming</option>
+            <option value="design">Design</option>
+            <option value="data">Data Science</option>
+            <option value="ai">AI/ML</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card animate-glow">
+        <div class="tag badge new">🔥 Trending</div>
+        <img src="https://images.pexels.com/photos/4145198/pexels-photo-4145198.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Course image" style="width:100%; border-radius:12px; aspect-ratio:16/9; object-fit:cover; margin-bottom: 12px;"/>
+        <h3>JavaScript Mastery 2025</h3>
+        <p class="muted">Master modern JS with hands-on projects and real-world applications.</p>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill" style="width: 35%"></div>
+        </div>
+        <div class="flex justify-between text-sm mb-4">
+          <span>⭐ 4.9 (2.5k reviews)</span>
+          <span>👥 15,420 students</span>
+        </div>
+        <div class="kpi">
+          <span class="font-bold">₹1,999</span>
+          <button class="btn primary addToCart animate-pulse" data-id="js-101" data-title="JavaScript Mastery 2025" data-price="1999">Add to cart</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tag badge pro">💎 Premium</div>
+        <img src="https://images.pexels.com/photos/3861964/pexels-photo-3861964.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Course image" style="width:100%; border-radius:12px; aspect-ratio:16/9; object-fit:cover; margin-bottom: 12px;"/>
+        <h3>AI & Machine Learning</h3>
+        <p class="muted">Build intelligent applications with TensorFlow and PyTorch.</p>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill" style="width: 10%"></div>
+        </div>
+        <div class="flex justify-between text-sm mb-4">
+          <span>⭐ 4.8 (1.8k reviews)</span>
+          <span>👥 8,900 students</span>
+        </div>
+        <div class="kpi">
+          <span class="font-bold">₹2,499</span>
+          <button class="btn primary addToCart" data-id="ai-201" data-title="AI & Machine Learning" data-price="2499">Add to cart</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <img src="https://images.pexels.com/photos/1181438/pexels-photo-1181438.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Course image" style="width:100%; border-radius:12px; aspect-ratio:16/9; object-fit:cover; margin-bottom: 12px;"/>
+        <h3>Full‑Stack Development</h3>
+        <p class="muted">Build scalable web applications from frontend to deployment.</p>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-sm mb-4">
+          <span>⭐ 4.7 (3.2k reviews)</span>
+          <span>👥 23,100 students</span>
+        </div>
+        <div class="kpi">
+          <span class="font-bold">₹3,999</span>
+          <button class="btn primary addToCart" data-id="fs-301" data-title="Full‑Stack Development" data-price="3999">Add to cart</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Code Playground Panel -->
+    <section id="panel-playground" class="animate-in" hidden>
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>👨‍💻 Interactive Code Playground</h3>
+        <p class="muted">Write, run, and experiment with code in real-time. Supports multiple languages with AI assistance.</p>
+      </div>
+      
+      <div class="grid cols-2">
+        <div class="card">
+          <div class="flex justify-between items-center mb-4">
+            <h4>Code Editor</h4>
+            <div class="flex gap-2">
+              <select id="codeLanguage" class="btn">
+                <option value="javascript">JavaScript</option>
+                <option value="python">Python</option>
+                <option value="html">HTML</option>
+                <option value="css">CSS</option>
+              </select>
+              <button class="btn success" id="runCode">▶️ Run</button>
+              <button class="btn ghost" id="clearCode">🗑️ Clear</button>
+            </div>
+          </div>
+          <div class="code-editor">
+            <textarea id="codeInput" placeholder="// Write your code here...
+console.log('Welcome to EduStream Playground!');
+
+function fibonacci(n) {
+  if (n = 1) return n;
+  return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log('Fibonacci(10):', fibonacci(10));">// Welcome to EduStream Playground!
+console.log('Hello, World!');
+
+function factorial(n) {
+  return n = 1 ? 1 : n * factorial(n - 1);
+}
+
+console.log('5! =', factorial(5));</textarea>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h4>Output Console</h4>
+          <div class="code-output" id="codeOutput">Ready to run your code...</div>
+          <div class="mt-4">
+            <h4>💡 Code Assistant</h4>
+            <div class="flex gap-2 mb-2">
+              <input type="text" id="codeQuestion" placeholder="Ask about your code..." class="input" />
+              <button class="btn primary" id="askCodeAI">Ask AI</button>
+            </div>
+            <div id="codeAiResponse" class="text-sm muted"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <h4>🏆 Code Challenges</h4>
+        <div class="grid cols-3">
+          <div class="kpi">
+            <span>🔰 Easy: Array Sum</span>
+            <button class="btn ghost" onclick="loadChallenge('easy')">Try</button>
+          </div>
+          <div class="kpi">
+            <span>⚡ Medium: Binary Search</span>
+            <button class="btn ghost" onclick="loadChallenge('medium')">Try</button>
+          </div>
+          <div class="kpi">
+            <span>🔥 Hard: Graph Algorithms</span>
+            <button class="btn ghost" onclick="loadChallenge('hard')">Try</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Collaboration Panel -->
+    <section id="panel-collaborate" class="animate-in" hidden>
+      <div class="card" style="margin-bottom: 20px;">
+        <h3>👥 Collaboration Hub</h3>
+        <p class="muted">Connect with fellow learners, join study groups, and work on projects together.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h4>🌐 Live Study Sessions</h4>
+          <div id="studySessions">
+            <div class="kpi mb-2">
+              <div>
+                <div class="font-bold">JavaScript Fundamentals</div>
+                <div class="text-sm muted">👥 12 participants • 🔴 Live</div>
+              </div>
+              <button class="btn success">Join</button>
+            </div>
+            <div class="kpi mb-2">
+              <div>
+                <div class="font-bold">React Best Practices</div>
+                <div class="text-sm muted">👥 8 participants • 🟡 Starting in 15min</div>
+              </div>
+              <button class="btn primary">Join</button>
+            </div>
+            <div class="kpi">
+              <div>
+                <div class="font-bold">Data Structures Q&A</div>
+                <div class="text-sm muted">👥 25 participants • ⏰ 2:00 PM</div>
+              </div>
+              <button class="btn ghost">Remind Me</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>💬 Discussion Forum</h4>
+          <div style="height: 200px; overflow-y: auto; background: var(--ring); padding: 12px; border-radius: 8px;">
+            <div class="mb-3">
+              <div class="font-bold">Sarah Chen</div>
+              <div class="text-sm">Can someone explain async/await vs Promises?</div>
+              <div class="text-sm muted">2 hours ago • 5 replies</div>
+            </div>
+            <div class="mb-3">
+              <div class="font-bold">Alex Kumar</div>
+              <div class="text-sm">Just finished the React project! Here's my solution...</div>
+              <div class="text-sm muted">4 hours ago • 12 likes</div>
+            </div>
+            <div class="mb-3">
+              <div class="font-bold">Emily Watson</div>
+              <div class="text-sm">Looking for a study buddy for the AI course</div>
+              <div class="text-sm muted">6 hours ago • 3 replies</div>
+            </div>
+          </div>
+          <div class="flex gap-2 mt-3">
+            <input type="text" placeholder="Join the discussion..." class="input" />
+            <button class="btn primary">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-4">
+        <h4>🤝 Find Study Partners</h4>
+        <div class="grid cols-3">
+          <div class="card glass">
+            <div class="text-center">
+              <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--gradient); margin: 0 auto 8px; display: flex; items: center; justify-content: center; color: white; font-weight: bold;">JD</div>
+              <div class="font-bold">John Doe</div>
+              <div class="text-sm muted">JavaScript • React • Node.js</div>
+              <button class="btn ghost mt-2">Connect</button>
+            </div>
+          </div>
+          <div class="card glass">
+            <div class="text-center">
+              <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--accent); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">MR</div>
+              <div class="font-bold">Maria Rodriguez</div>
+              <div class="text-sm muted">Python • Data Science • ML</div>
+              <button class="btn ghost mt-2">Connect</button>
+            </div>
+          </div>
+          <div class="card glass">
+            <div class="text-center">
+              <div style="width: 60px; height: 60px; border-radius: 50%; background: var(--warn); margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">AK</div>
+              <div class="font-bold">Ahmed Khan</div>
+              <div class="text-sm muted">UI/UX • Figma • CSS</div>
+              <button class="btn ghost mt-2">Connect</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Cart Panel -->
+    <section id="panel-cart" class="animate-in" hidden>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>🛒 Shopping Cart</h3>
+          <table class="table" id="cartTable">
+            <thead><tr><th>Course</th><th>Price</th><th>Qty</th><th></th></tr></thead>
+            <tbody></tbody>
+            <tfoot><tr><th>Total</th><th id="cartTotal" colspan="3">₹0</th></tr></tfoot>
+          </table>
+          <div class="row" style="justify-content:flex-end; margin-top:12px;">
+            <button class="btn danger" id="clearCart">Clear</button>
+            <button class="btn success" id="checkout">💳 Checkout</button>
+          </div>
+          
+          <!-- Discount Section -->
+          <div class="mt-4">
+            <div class="flex gap-2">
+              <input type="text" id="discountCode" placeholder="Enter discount code..." class="input" />
+              <button class="btn ghost" id="applyDiscount">Apply</button>
+            </div>
+            <div class="text-sm muted mt-2">💡 Try codes: STUDENT20, NEWUSER, PREMIUM50</div>
+          </div>
+          
+          <p class="muted mt-4">Secure checkout with encrypted payment processing.</p>
+        </div>
+        
+        <div class="card">
+          <h3>🔐 Authentication</h3>
+          <div id="authTabs" class="flex gap-2 mb-4">
+            <button class="btn ghost active" onclick="switchAuthTab('login')">Sign In</button>
+            <button class="btn ghost" onclick="switchAuthTab('register')">Register</button>
+          </div>
+          
+          <form id="loginForm" novalidate>
+            <label>Email
+              <input class="input" type="email" name="email" required placeholder="you@edustream.io" />
+            </label>
+            <div style="height:8px"></div>
+            <label>Password
+              <input class="input" type="password" name="password" minlength="6" required placeholder="••••••••" />
+            </label>
+            <div style="height:12px"></div>
+            <button class="btn primary" type="submit">🚀 Sign In</button>
+            <span class="muted" id="loginHint" style="margin-left:8px;">Any email + 6+ chars</span>
+          </form>
+          
+          <form id="registerForm" novalidate style="display: none;">
+            <label>Full Name
+              <input class="input" type="text" name="name" required placeholder="Your full name" />
+            </label>
+            <div style="height:8px"></div>
+            <label>Email
+              <input class="input" type="email" name="email" required placeholder="your.email@example.com" />
+            </label>
+            <div style="height:8px"></div>
+            <label>Password
+              <input class="input" type="password" name="password" minlength="6" required placeholder="Create a strong password" />
+            </label>
+            <div style="height:8px"></div>
+            <label>Confirm Password
+              <input class="input" type="password" name="confirmPassword" required placeholder="Confirm your password" />
+            </label>
+            <div style="height:12px"></div>
+            <button class="btn success" type="submit">✨ Create Account</button>
+          </form>
+          
+          <div style="height:12px"></div>
+          <div class="pill" id="authStatus">Not authenticated</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Quiz Panel -->
+    <section id="panel-quiz" class="grid cols-2 animate-in" hidden>
+      <div class="card">
+        <h3>🧠 Adaptive Quiz System</h3>
+        <div class="progress-bar mb-4">
+          <div class="progress-fill" id="quizProgress" style="width: 0%"></div>
+        </div>
+        
+        <form id="quizForm" novalidate>
+          <div class="mb-4">
+            <label class="font-bold">1) What does 'const' declare in JavaScript?
+              <div class="mt-2">
+                <label class="flex items-center gap-2">
+                  <input type="radio" name="q1" value="variable" required />
+                  <span>A mutable variable</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" name="q1" value="constant" required />
+                  <span>A constant value that cannot be reassigned</span>
+                </label>
+                <label class="flex items-center gap-2">
+                  <input type="radio" name="q1" value="function" required />
+                  <span>A function declaration</span>
+                </label>
+              </div>
+            </label>
+          </div>
+          
+          <div class="mb-4">
+            <label class="font-bold">2) Which array method adds elements to the end?
+              <input class="input mt-2" name="q2" required pattern="(?i)push" placeholder="Type your answer..." />
+            </label>
+          </div>
+          
+          <div class="mb-4">
+            <label class="font-bold">3) What's the result of: 2 + 2 * 2?
+              <input class="input mt-2" name="q3" required pattern="6" placeholder="Calculate and enter..." />
+            </label>
+          </div>
+          
+          <button class="btn primary" type="submit">Submit Quiz</button>
+          <span class="pill ml-4" id="quizScore">Score: 0/3</span>
+          <div class="mt-2">
+            <span class="pill" id="quizTimer">Time: 00:00</span>
+            <span class="pill ml-2" id="quizAttempts">Attempt: 1</span>
+          </div>
+        </form>
+        
+        <div class="mt-4" id="quizFeedback" style="display: none;">
+          <h4>📊 Detailed Feedback</h4>
+          <div id="feedbackContent"></div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h3>🎯 Learning Path Generator</h3>
+        <p class="muted">AI-powered personalized learning recommendations based on your performance.</p>
+        
+        <div class="mt-4">
+          <h4>📈 Your Progress</h4>
+          <canvas id="skillsRadar" height="200"></canvas>
+        </div>
+        
+        <div class="mt-4">
+          <h4>🎲 Quick Challenge</h4>
+          <button class="btn success" id="randomChallenge">Generate Random Question</button>
+          <div id="challengeQuestion" class="mt-3 p-3 border rounded-lg" style="display: none;"></div>
+        </div>
+        
+        <div class="mt-4">
+          <h4>🏅 Achievements</h4>
+          <div id="achievements">
+            <div class="achievement">
+              <span>🎯</span>
+              <div>
+                <div class="font-bold">First Quiz Completed</div>
+                <div class="text-sm">You've taken your first quiz!</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Enhanced Dashboard -->
+    <section id="panel-dashboard" class="animate-in" hidden>
+      <div class="card mb-4">
+        <h3>📊 Advanced Learning Analytics</h3>
+        <div class="grid cols-4">
+          <div class="kpi">
+            <span>📚 Courses Enrolled</span>
+            <span class="font-bold" id="enrolledCount">3</span>
+          </div>
+          <div class="kpi">
+            <span>⏱️ Study Hours</span>
+            <span class="font-bold" id="studyHours">47.5h</span>
+          </div>
+          <div class="kpi">
+            <span>🎯 Quiz Average</span>
+            <span class="font-bold" id="quizAvg">85%</span>
+          </div>
+          <div class="kpi">
+            <span>🔥 Streak Days</span>
+            <span class="font-bold" id="streakDays">12</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>📈 Progress Overview</h3>
+          <canvas id="chartProgress" height="200"></canvas>
+        </div>
+        <div class="card">
+          <h3>🔥 Study Streak</h3>
+          <canvas id="chartStreak" height="200"></canvas>
+        </div>
+        <div class="card">
+          <h3>🎯 Skill Distribution</h3>
+          <canvas id="chartDonut" height="200"></canvas>
+        </div>
+        
+        <div class="card">
+          <h3>📅 Weekly Schedule</h3>
+          <div class="text-sm">
+            <div class="flex justify-between mb-2">
+              <span>Monday</span>
+              <span class="font-bold">2h JavaScript</span>
+            </div>
+            <div class="flex justify-between mb-2">
+              <span>Wednesday</span>
+              <span class="font-bold">1.5h React</span>
+            </div>
+            <div class="flex justify-between mb-2">
+              <span>Friday</span>
+              <span class="font-bold">3h Project</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Sunday</span>
+              <span class="font-bold">1h Review</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3>🎖️ Recent Badges</h3>
+          <div class="flex flex-wrap gap-2">
+            <span class="badge pro">🏆 Quiz Master</span>
+            <span class="badge new">⭐ 7-Day Streak</span>
+            <span class="badge">💻 Code Warrior</span>
+            <span class="badge">📚 Knowledge Seeker</span>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h3>🚀 Goals & Milestones</h3>
+          <div class="space-y-3">
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Complete JS Course</span>
+                <span>70%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 70%"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between text-sm mb-1">
+                <span>Build Portfolio</span>
+                <span>30%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card mt-4">
+        <h3>📋 Recent Activity</h3>
+        <table class="table" id="activityTable">
+          <thead><tr><th>When</th><th>Action</th><th>Details</th><th>Points</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Enhanced Settings -->
+    <section id="panel-settings" class="grid cols-2 animate-in" hidden>
+      <div class="card">
+        <h3>🎨 Appearance</h3>
+        <div class="grid cols-3 gap-2 mb-4">
+          <button class="btn ghost" id="prefDark">🌙 Dark</button>
+          <button class="btn ghost" id="prefLight">☀️ Light</button>
+          <button class="btn ghost" id="prefSystem">🖥️ System</button>
+        </div>
+        
+        <h4>🔤 Font Size</h4>
+        <div class="flex gap-2 mb-4">
+          <button class="btn ghost" onclick="adjustFontSize(-1)">A-</button>
+          <button class="btn ghost" onclick="adjustFontSize(0)">A</button>
+          <button class="btn ghost" onclick="adjustFontSize(1)">A+</button>
+        </div>
+        
+        <h4>🎵 Audio Settings</h4>
+        <label class="flex justify-between items-center mb-2">
+          <span>Sound Effects</span>
+          <input type="checkbox" id="soundEffects" checked />
+        </label>
+        <label class="flex justify-between items-center">
+          <span>Background Music</span>
+          <input type="checkbox" id="backgroundMusic" />
+        </label>
+      </div>
+      
+      <div class="card">
+        <h3>🔔 Notifications</h3>
+        <label class="flex justify-between items-center mb-3">
+          <span>Course Updates</span>
+          <input type="checkbox" id="courseNotifs" checked />
+        </label>
+        <label class="flex justify-between items-center mb-3">
+          <span>Quiz Reminders</span>
+          <input type="checkbox" id="quizNotifs" checked />
+        </label>
+        <label class="flex justify-between items-center mb-3">
+          <span>Study Streak Alerts</span>
+          <input type="checkbox" id="streakNotifs" checked />
+        </label>
+        
+        <h4>📧 Email Preferences</h4>
+        <label class="flex justify-between items-center mb-2">
+          <span>Weekly Progress</span>
+          <input type="checkbox" id="weeklyEmail" />
+        </label>
+        <label class="flex justify-between items-center">
+          <span>New Courses</span>
+          <input type="checkbox" id="coursesEmail" checked />
+        </label>
+      </div>
+      
+      <div class="card">
+        <h3>🎓 Learning Preferences</h3>
+        <label>Preferred Learning Pace
+          <select class="input">
+            <option>Beginner (2-3h/week)</option>
+            <option selected>Intermediate (5-7h/week)</option>
+            <option>Advanced (10+ h/week)</option>
+          </select>
+        </label>
+        
+        <label class="mt-3">Focus Areas (Select multiple)
+          <div class="grid cols-2 gap-2 mt-2">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" checked />
+              <span>Frontend Development</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" />
+              <span>Backend Development</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" checked />
+              <span>Data Science</span>
+            </label>
+            <label class="flex items-center gap-2">
+              <input type="checkbox" />
+              <span>Machine Learning</span>
+            </label>
+          </div>
+        </label>
+      </div>
+      
+      <div class="card">
+        <h3>📱 About EduStream Advanced</h3>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span>Version:</span>
+            <span class="font-bold">2.0.1 Advanced</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Build:</span>
+            <span class="font-bold">#2025.1.15</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Students:</span>
+            <span class="font-bold">50,000+</span>
+          </div>
+        </div>
+        
+        <div class="mt-4">
+          <button class="btn ghost" id="exportData">📁 Export Data</button>
+          <button class="btn danger ml-2" id="resetApp">🔄 Reset App</button>
+        </div>
+        
+        <div class="mt-4 text-sm muted">
+          <h4>🔧 Features:</h4>
+          <ul style="margin: 8px 0; padding-left: 20px;">
+            <li>AI-powered learning recommendations</li>
+            <li>Real-time code playground</li>
+            <li>Advanced video analytics</li>
+            <li>Collaborative learning tools</li>
+            <li>Gamification & achievements</li>
+            <li>Progressive Web App support</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating Action Button -->
+  <button class="btn primary floating animate-pulse" id="helpBot" title="AI Assistant">🤖</button>
+
+  <!-- Toast Notifications -->
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Modal for AI Chat -->
+  <div class="modal" id="aiModal">
+    <div class="modal-content">
+      <div class="flex justify-between items-center mb-4">
+        <h3>🤖 AI Learning Assistant</h3>
+        <button class="btn ghost" onclick="closeModal('aiModal')">✕</button>
+      </div>
+      <div id="aiChatContainer" style="height: 300px; overflow-y: auto; background: var(--ring); padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+        <div class="mb-3">
+          <strong>AI Assistant:</strong> Hello! I'm your personal learning assistant. I can help you with:
+          <ul style="margin: 8px 0; padding-left: 20px;">
+            <li>Explaining complex concepts</li>
+            <li>Suggesting learning paths</li>
+            <li>Code review and debugging</li>
+            <li>Quiz preparation</li>
+            <li>Study planning</li>
+          </ul>
+          What would you like to learn about today?
+        </div>
+      </div>
+      <div class="flex gap-2">
+        <input type="text" id="aiModalInput" placeholder="Ask me anything about your learning..." class="input" style="flex: 1;" />
+        <button class="btn primary" onclick="sendAiModalMessage()">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Panel -->
+  <div class="notification" id="notificationPanel">
+    <div class="flex justify-between items-center mb-2">
+      <h4>🔔 Notifications</h4>
+      <button class="btn ghost" onclick="closeNotifications()">✕</button>
+    </div>
+    <div id="notificationList"></div>
+  </div>
+
+  <script>
+    // ============================= Enhanced Utilities & Store =============================
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+    
+    // Enhanced Store with more features
+    const Store = {
+      state: {
+        theme: localStorage.getItem('eds_theme') || 'dark',
+        token: localStorage.getItem('eds_token') || '',
+        cart: JSON.parse(localStorage.getItem('eds_cart')||'[]'),
+        activity: JSON.parse(localStorage.getItem('eds_activity')||'[]'),
+        progress: JSON.parse(localStorage.getItem('eds_progress')||'{"JavaScript Mastery 2025":35,"AI & Machine Learning":10,"Full‑Stack Development":0}'),
+        bookmarks: JSON.parse(localStorage.getItem('eds_bookmarks')||'[]'),
+        notes: JSON.parse(localStorage.getItem('eds_notes')||'[]'),
+        achievements: JSON.parse(localStorage.getItem('eds_achievements')||'[]'),
+        notifications: JSON.parse(localStorage.getItem('eds_notifications')||'[]'),
+        settings: JSON.parse(localStorage.getItem('eds_settings')||'{"soundEffects":true,"backgroundMusic":false}'),
+        studyStats: JSON.parse(localStorage.getItem('eds_studyStats')||'{"totalTime":0,"quizzesTaken":0,"streakDays":12}')
+      },
+      
+      save(key) {
+        localStorage.setItem(`eds_${key}`, JSON.stringify(this.state[key]));
+      },
+      
+      addActivity(action, details='', points=0) {
+        const when = new Date().toLocaleString();
+        this.state.activity.unshift({when, action, details, points});
+        this.state.activity = this.state.activity.slice(0,50);
+        this.save('activity');
+        renderActivity();
+        
+        if (points > 0) {
+          this.addNotification(`🎉 Earned ${points} points for ${action}!`);
+        }
+      },
+      
+      addNotification(message, type='info') {
+        const notification = {
+          id: Date.now(),
+          message,
+          type,
+          timestamp: Date.now(),
+          read: false
+        };
+        this.state.notifications.unshift(notification);
+        this.state.notifications = this.state.notifications.slice(0,20);
+        this.save('notifications');
+        updateNotificationBadge();
+        showNotificationToast(notification);
+      },
+      
+      addAchievement(title, description, icon='🏆') {
+        const achievement = { title, description, icon, earned: Date.now() };
+        this.state.achievements.push(achievement);
+        this.save('achievements');
+        showAchievement(achievement);
+      }
+    };
+
+    // Enhanced Notification System
+    function updateNotificationBadge() {
+      const unread = Store.state.notifications.filter(n => !n.read).length;
+      const badge = $('#notifCount');
+      if (unread > 0) {
+        badge.textContent = unread > 9 ? '9+' : unread;
+        badge.style.display = 'inline';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    function showNotificationToast(notification) {
+      const toast = $('#toast');
+      toast.textContent = notification.message;
+      toast.className = `toast show ${notification.type}`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    function showAchievement(achievement) {
+      const achievementEl = document.createElement('div');
+      achievementEl.className = 'achievement';
+      achievementEl.innerHTML = `
+        <span style="font-size: 24px;">${achievement.icon}</span>
+        <div>
+          <div class="font-bold">${achievement.title}</div>
+          <div class="text-sm">${achievement.description}</div>
+        </div>
+      `;
+      
+      document.body.appendChild(achievementEl);
+      setTimeout(() => achievementEl.classList.add('show'), 100);
+      setTimeout(() => {
+        achievementEl.classList.remove('show');
+        setTimeout(() => document.body.removeChild(achievementEl), 500);
+      }, 4000);
+      
+      // Play sound if enabled
+      if (Store.state.settings.soundEffects) {
+        playSound('achievement');
+      }
+    }
+
+    // Enhanced Toast System
+    function toast(msg, type = 'info') {
+      const t = $('#toast');
+      t.textContent = msg;
+      t.className = `toast show ${type}`;
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    // Sound Effects
+    function playSound(type) {
+      if (!Store.state.settings.soundEffects) return;
+      
+      const sounds = {
+        click: () => playTone(800, 100),
+        success: () => playTone(600, 200),
+        error: () => playTone(400, 300),
+        achievement: () => {
+          playTone(523, 200);
+          setTimeout(() => playTone(659, 200), 150);
+          setTimeout(() => playTone(784, 300), 300);
+        }
+      };
+      
+      sounds[type]?.();
+    }
+
+    function playTone(frequency, duration) {
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = frequency;
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+      
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + duration / 1000);
+    }
+
+    // ============================= Enhanced Theme System =============================
+    function applyTheme() {
+      const pref = Store.state.theme;
+      const root = document.documentElement;
+      if (pref === 'system') {
+        const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        root.classList.toggle('light', !sysDark);
+        root.classList.toggle('dark', sysDark);
+      } else {
+        root.classList.toggle('light', pref === 'light');
+        root.classList.toggle('dark', pref === 'dark');
+      }
+      
+      // Update status badge
+      $('#statusBadge').textContent = navigator.onLine ? 'Online' : 'Offline';
+    }
+
+    $('#toggleTheme').addEventListener('click', () => {
+      Store.state.theme = (Store.state.theme === 'dark') ? 'light' : 'dark';
+      Store.save('theme');
+      applyTheme();
+      playSound('click');
+    });
+
+    $('#prefDark').addEventListener('click', () => {
+      Store.state.theme = 'dark';
+      Store.save('theme');
+      applyTheme();
+      playSound('click');
+    });
+
+    $('#prefLight').addEventListener('click', () => {
+      Store.state.theme = 'light';
+      Store.save('theme');
+      applyTheme();
+      playSound('click');
+    });
+
+    $('#prefSystem').addEventListener('click', () => {
+      Store.state.theme = 'system';
+      Store.save('theme');
+      applyTheme();
+      playSound('click');
+    });
+
+    // ============================= Enhanced Navigation =============================
+    const panels = [
+      { id: 'gallery', label: '🎬 Gallery', icon: '🎬' },
+      { id: 'courses', label: '🎓 Courses', icon: '🎓' },
+      { id: 'playground', label: '👨‍💻 Code Lab', icon: '👨‍💻' },
+      { id: 'collaborate', label: '👥 Collaborate', icon: '👥' },
+      { id: 'quiz', label: '🧠 Quiz', icon: '🧠' },
+      { id: 'dashboard', label: '📊 Analytics', icon: '📊' },
+      { id: 'cart', label: '🛒 Cart', icon: '🛒' },
+      { id: 'settings', label: '⚙️ Settings', icon: '⚙️' },
+    ];
+
+    function buildTabs() {
+      const nav = $('#tabs');
+      nav.innerHTML = '';
+      panels.forEach((p, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tab btn' + (i === 0 ? ' active' : '');
+        btn.innerHTML = `${p.icon} ${p.label}`;
+        btn.addEventListener('click', () => {
+          selectTab(p.id);
+          playSound('click');
+        });
+        nav.appendChild(btn);
+      });
+      selectTab('gallery');
+    }
+
+    function selectTab(id) {
+      $$('#tabs button').forEach(b => b.classList.remove('active'));
+      const idx = panels.findIndex(p => p.id === id);
+      if (idx >= 0) $$('#tabs button')[idx].classList.add('active');
+      
+      panels.forEach(p => {
+        const panel = $('#panel-' + p.id);
+        panel.hidden = p.id !== id;
+        if (p.id === id && !panel.classList.contains('animate-in')) {
+          panel.classList.add('animate-in');
+        }
+      });
+      
+      Store.addActivity('Navigate', `Viewed ${id} panel`);
+    }
+
+    // ============================= Enhanced Authentication =============================
+    function renderAuth() {
+      const area = $('#authArea');
+      area.innerHTML = '';
+      
+      if (Store.state.token) {
+        const userInfo = parseJWT(Store.state.token);
+        const span = document.createElement('span');
+        span.className = 'pill';
+        span.textContent = `👋 ${userInfo?.email?.split('@')[0] || 'User'}`;
+        
+        const btnOut = document.createElement('button');
+        btnOut.className = 'btn danger';
+        btnOut.innerHTML = '🚪 Logout';
+        btnOut.onclick = () => {
+          Store.state.token = '';
+          Store.save('token');
+          renderAuth();
+          toast('Signed out successfully!', 'success');
+          Store.addActivity('Logout');
+          updateAuthStatus();
+          playSound('click');
+        };
+        area.append(span, btnOut);
+      } else {
+        const btnIn = document.createElement('button');
+        btnIn.className = 'btn primary';
+        btnIn.innerHTML = '🔐 Login';
+        btnIn.onclick = () => {
+          selectTab('cart');
+          playSound('click');
+        };
+        area.append(btnIn);
+      }
+      updateCartCount();
+    }
+
+    function parseJWT(token) {
+      try {
+        const payload = token.split('.')[1];
+        return JSON.parse(atob(payload));
+      } catch {
+        return null;
+      }
+    }
+
+    function makeFakeJWT(email) {
+      const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+      const payload = btoa(JSON.stringify({ sub: email, iat: Date.now(), name: email.split('@')[0] }));
+      const sig = btoa('dev-secret-' + Math.random().toString(36));
+      return `${header}.${payload}.${sig}`;
+    }
+
+    function updateAuthStatus() {
+      const el = $('#authStatus');
+      if (Store.state.token) {
+        const userInfo = parseJWT(Store.state.token);
+        el.innerHTML = `✅ Authenticated as <strong>${userInfo?.email}</strong>`;
+      } else {
+        el.textContent = '❌ Not authenticated';
+      }
+    }
+
+    // Auth Tab Switching
+    function switchAuthTab(tab) {
+      $$('#authTabs button').forEach(b => b.classList.remove('active'));
+      if (tab === 'login') {
+        $('#authTabs button:first-child').classList.add('active');
+        $('#loginForm').style.display = 'block';
+        $('#registerForm').style.display = 'none';
+      } else {
+        $('#authTabs button:last-child').classList.add('active');
+        $('#loginForm').style.display = 'none';
+        $('#registerForm').style.display = 'block';
+      }
+      playSound('click');
+    }
+
+    // Enhanced Login Form
+    $('#loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.currentTarget);
+      const email = fd.get('email');
+      const pw = fd.get('password');
+      
+      if (!e.currentTarget.checkValidity()) {
+        e.currentTarget.reportValidity();
+        return;
+      }
+      
+      if (String(pw).length < 6) {
+        toast('Password must be at least 6 characters', 'error');
+        playSound('error');
+        return;
+      }
+      
+      Store.state.token = makeFakeJWT(String(email));
+      Store.save('token');
+      renderAuth();
+      updateAuthStatus();
+      toast('Welcome back! You\'re now signed in.', 'success');
+      Store.addActivity('Login', String(email), 10);
+      Store.addNotification(`Welcome back! You earned 10 points for logging in.`);
+      playSound('success');
+    });
+
+    // Register Form
+    $('#registerForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.currentTarget);
+      const name = fd.get('name');
+      const email = fd.get('email');
+      const password = fd.get('password');
+      const confirmPassword = fd.get('confirmPassword');
+      
+      if (password !== confirmPassword) {
+        toast('Passwords do not match', 'error');
+        playSound('error');
+        return;
+      }
+      
+      if (!e.currentTarget.checkValidity()) {
+        e.currentTarget.reportValidity();
+        return;
+      }
+      
+      // Simulate registration
+      toast('Account created successfully! Please sign in.', 'success');
+      Store.addActivity('Register', String(email), 25);
+      Store.addAchievement('Welcome Aboard!', 'You\'ve successfully created your EduStream account', '🎉');
+      switchAuthTab('login');
+      playSound('success');
+    });
+
+    // ============================= Enhanced Cart System =============================
+    function updateCartCount() {
+      const count = Store.state.cart.reduce((a, i) => a + (i.qty || 1), 0);
+      $('#cartCount').textContent = count;
+      
+      // Animate cart button if items added
+      if (count > 0) {
+        $('#viewCartBtn').style.animation = 'pulse 1s ease';
+        setTimeout(() => $('#viewCartBtn').style.animation = '', 1000);
+      }
+    }
+
+    function renderCart() {
+      const tb = $('#cartTable tbody');
+      tb.innerHTML = '';
+      let total = 0;
+      
+      Store.state.cart.forEach(item => {
+        total += item.price * item.qty;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div class="font-bold">${item.title}</div>
+            <div class="text-sm muted">${item.category || 'Programming'}</div>
+          </td>
+          <td class="font-bold">₹${item.price}</td>
+          <td>
+            <input type="number" min="1" max="10" value="${item.qty}" 
+                   style="width:60px;" class="input" />
+          </td>
+          <td>
+            <button class='btn danger'>🗑️</button>
+          </td>
+        `;
+        
+        const qtyInput = $('input', tr);
+        qtyInput.addEventListener('change', () => {
+          const newQty = Math.max(1, Math.min(10, parseInt(qtyInput.value || '1', 10)));
+          item.qty = newQty;
+          qtyInput.value = newQty;
+          Store.save('cart');
+          renderCart();
+          updateCartCount();
+          playSound('click');
+        });
+        
+        $('button', tr).addEventListener('click', () => {
+          Store.state.cart = Store.state.cart.filter(x => x.id !== item.id);
+          Store.save('cart');
+          renderCart();
+          updateCartCount();
+          toast(`Removed ${item.title} from cart`, 'info');
+          playSound('click');
+        });
+        
+        tb.appendChild(tr);
+      });
+      
+      $('#cartTotal').innerHTML = `<strong>₹${total.toLocaleString()}</strong>`;
+    }
+
+    // Enhanced Add to Cart
+    $$('#panel-courses .addToCart').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const item = {
+          id: btn.dataset.id,
+          title: btn.dataset.title,
+          price: Number(btn.dataset.price),
+          qty: 1,
+          category: 'Programming'
+        };
+        
+        const existing = Store.state.cart.find(i => i.id === item.id);
+        if (existing) {
+          existing.qty += 1;
+          toast(`Updated quantity for ${item.title}`, 'success');
+        } else {
+          Store.state.cart.push(item);
+          toast(`Added ${item.title} to cart!`, 'success');
+        }
+        
+        Store.save('cart');
+        updateCartCount();
+        Store.addActivity('Add to cart', item.title, 5);
+        playSound('success');
+      });
+    });
+
+    $('#viewCartBtn').addEventListener('click', () => {
+      selectTab('cart');
+      playSound('click');
+    });
+
+    $('#clearCart').addEventListener('click', () => {
+      if (Store.state.cart.length === 0) {
+        toast('Cart is already empty', 'info');
+        return;
+      }
+      
+      if (confirm('Are you sure you want to clear your cart?')) {
+        Store.state.cart = [];
+        Store.save('cart');
+        renderCart();
+        updateCartCount();
+        toast('Cart cleared successfully', 'success');
+        playSound('click');
+      }
+    });
+
+    // Enhanced Checkout
+    $('#checkout').addEventListener('click', () => {
+      if (!Store.state.token) {
+        toast('Please sign in before checkout', 'error');
+        selectTab('cart');
+        playSound('error');
+        return;
+      }
+      
+      if (Store.state.cart.length === 0) {
+        toast('Your cart is empty', 'error');
+        playSound('error');
+        return;
+      }
+      
+      const orderId = Math.random().toString(36).slice(2, 8).toUpperCase();
+      const total = Store.state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      
+      toast('Processing your order...', 'info');
+      playSound('click');
+      
+      setTimeout(() => {
+        toast(`Order #${orderId} confirmed! Total: ₹${total.toLocaleString()}`, 'success');
+        Store.addActivity('Order confirmed', `#${orderId} - ₹${total}`, 50);
+        Store.addNotification(`🎉 Order #${orderId} confirmed! Check your email for details.`);
+        Store.addAchievement('First Purchase!', 'You\'ve made your first course purchase', '🛒');
+        Store.state.cart = [];
+        Store.save('cart');
+        renderCart();
+        updateCartCount();
+        playSound('achievement');
+      }, 2000);
+    });
+
+    // Discount System
+    $('#applyDiscount').addEventListener('click', () => {
+      const code = $('#discountCode').value.trim().toUpperCase();
+      const discounts = {
+        'STUDENT20': 20,
+        'NEWUSER': 15,
+        'PREMIUM50': 50
+      };
+      
+      if (discounts[code]) {
+        toast(`${discounts[code]}% discount applied!`, 'success');
+        Store.addActivity('Discount applied', `${code} (${discounts[code]}%)`, 10);
+        playSound('success');
+      } else if (code) {
+        toast('Invalid discount code', 'error');
+        playSound('error');
+      }
+    });
+
+    // ============================= Enhanced Media Player =============================
+    const vid = $('#lessonVideo');
+    const overlay = $('#videoOverlay');
+    const vctx = overlay.getContext('2d');
+    let watchStartTime = 0;
+    let totalWatchTime = 0;
+
+    function resizeOverlay() {
+      overlay.width = vid.clientWidth;
+      overlay.height = 40;
+    }
+
+    window.addEventListener('resize', resizeOverlay);
+
+    vid.addEventListener('loadedmetadata', () => {
+      resizeOverlay();
+      updateTimeLabel();
+      drawOverlay();
+    });
+
+    vid.addEventListener('timeupdate', () => {
+      updateTimeLabel();
+      drawOverlay();
+      saveWatchProgress();
+      updateVideoAnalytics();
+    });
+
+    vid.addEventListener('play', () => {
+      watchStartTime = vid.currentTime;
+      $('#playPause').innerHTML = '⏸️ Pause';
+    });
+
+    vid.addEventListener('pause', () => {
+      if (watchStartTime > 0) {
+        totalWatchTime += (vid.currentTime - watchStartTime);
+      }
+      $('#playPause').innerHTML = '▶️ Play';
+    });
+
+    function updateTimeLabel() {
+      const t = formatTime(vid.currentTime) + ' / ' + formatTime(vid.duration || 0);
+      $('#videoTime').textContent = t;
+    }
+
+    function formatTime(s) {
+      if (!isFinite(s)) return '00:00';
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = Math.floor(s % 60);
+      
+      if (h > 0) {
+        return `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+      }
+      return `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function drawOverlay() {
+      const w = overlay.width, h = overlay.height;
+      vctx.clearRect(0, 0, w, h);
+      
+      // Progress bar with gradient
+      const p = (vid.currentTime / (vid.duration || 1));
+      const gradient = vctx.createLinearGradient(0, 0, w, 0);
+      gradient.addColorStop(0, '#7c5cff');
+      gradient.addColorStop(1, '#9c7eff');
+      
+      // Background
+      vctx.fillStyle = 'rgba(255,255,255,0.2)';
+      vctx.fillRect(0, h - 8, w, 8);
+      
+      // Progress
+      vctx.fillStyle = gradient;
+      vctx.fillRect(0, h - 8, w * p, 8);
+      
+      // Bookmarks
+      Store.state.bookmarks.forEach(bookmark => {
+        if (bookmark.videoId === 'lessonVideo') {
+          const x = (bookmark.time / (vid.duration || 1)) * w;
+          vctx.fillStyle = '#ff9f0a';
+          vctx.fillRect(x - 2, h - 12, 4, 12);
+        }
+      });
+      
+      // Chapter markers (every 30 seconds)
+      vctx.fillStyle = 'rgba(255,255,255,0.4)';
+      const step = 30;
+      for (let t = 0; t < vid.duration; t += step) {
+        const x = (t / (vid.duration || 1)) * w;
+        vctx.fillRect(x, h - 6, 1, 6);
+      }
+    }
+
+    function updateVideoAnalytics() {
+      const watchTimeMinutes = Math.floor(totalWatchTime / 60);
+      const completion = Math.round((vid.currentTime / (vid.duration || 1)) * 100);
+      
+      $('#watchTime').textContent = `${watchTimeMinutes}m`;
+      $('#completion').textContent = `${completion}%`;
+      $('#bookmarkCount').textContent = Store.state.bookmarks.filter(b => b.videoId === 'lessonVideo').length;
+    }
+
+    $('#playPause').addEventListener('click', () => {
+      if (vid.paused) {
+        vid.play();
+      } else {
+        vid.pause();
+      }
+      playSound('click');
+    });
+
+    $('#rate').addEventListener('change', e => {
+      vid.playbackRate = Number(e.target.value);
+      playSound('click');
+    });
+
+    $('#volume').addEventListener('input', e => {
+      vid.volume = Number(e.target.value);
+    });
+
+    // Bookmarks
+    $('#addBookmark').addEventListener('click', () => {
+      const bookmark = {
+        id: Date.now(),
+        videoId: 'lessonVideo',
+        time: vid.currentTime,
+        title: `Bookmark at ${formatTime(vid.currentTime)}`,
+        note: ''
+      };
+      
+      Store.state.bookmarks.push(bookmark);
+      Store.save('bookmarks');
+      toast('Bookmark added!', 'success');
+      Store.addActivity('Bookmark added', formatTime(vid.currentTime), 2);
+      playSound('success');
+      drawOverlay();
+      updateVideoAnalytics();
+    });
+
+    // Notes
+    $('#addNote').addEventListener('click', () => {
+      const noteText = prompt('Add a note for this timestamp:');
+      if (noteText) {
+        const note = {
+          id: Date.now(),
+          videoId: 'lessonVideo',
+          time: vid.currentTime,
+          text: noteText,
+          timestamp: Date.now()
+        };
+        
+        Store.state.notes.push(note);
+        Store.save('notes');
+        renderNotes();
+        toast('Note added!', 'success');
+        Store.addActivity('Note added', formatTime(vid.currentTime), 5);
+        playSound('success');
+      }
+    });
+
+    function renderNotes() {
+      const container = $('#notesList');
+      container.innerHTML = '';
+      
+      Store.state.notes
+        .filter(note => note.videoId === 'lessonVideo')
+        .sort((a, b) => a.time - b.time)
+        .forEach(note => {
+          const noteEl = document.createElement('div');
+          noteEl.className = 'mb-2 p-2 border rounded-lg';
+          noteEl.innerHTML = `
+            <div class="flex justify-between items-start">
+              <div style="flex: 1;">
+                <div class="text-sm font-bold text-blue-600 cursor-pointer" onclick="vid.currentTime=${note.time}">
+                  📌 ${formatTime(note.time)}
+                </div>
+                <div class="text-sm">${note.text}</div>
+              </div>
+              <button class="btn ghost text-sm" onclick="deleteNote(${note.id})">🗑️</button>
+            </div>
+          `;
+          container.appendChild(noteEl);
+        });
+    }
+
+    function deleteNote(id) {
+      Store.state.notes = Store.state.notes.filter(note => note.id !== id);
+      Store.save('notes');
+      renderNotes();
+      toast('Note deleted', 'info');
+      playSound('click');
+    }
+
+    $('#exportNotes').addEventListener('click', () => {
+      const notes = Store.state.notes.filter(note => note.videoId === 'lessonVideo');
+      if (notes.length === 0) {
+        toast('No notes to export', 'info');
+        return;
+      }
+      
+      const content = notes.map(note => 
+        `${formatTime(note.time)}: ${note.text}`
+      ).join('\n');
+      
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'video-notes.txt';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast('Notes exported!', 'success');
+      Store.addActivity('Notes exported', `${notes.length} notes`);
+      playSound('success');
+    });
+
+    // Audio visualization
+    const aud = $('#lectureAudio');
+    const abar = $('#audioBar');
+    const actx = abar.getContext('2d');
+
+    function drawAudio() {
+      const w = abar.width = abar.clientWidth;
+      const h = abar.height;
+      actx.clearRect(0, 0, w, h);
+      
+      const p = (aud.currentTime / (aud.duration || 1));
+      const bars = 60;
+      
+      for (let i = 0; i < bars; i++) {
+        const x = (i / bars) * w;
+        const barW = (w / bars) - 2;
+        const isActive = i / bars < p;
+        
+        // Create dynamic height based on progress and some randomness for visual effect
+        const baseHeight = (Math.sin((p * 10 + i) * 0.5) + 1) * 0.5;
+        const barH = (baseHeight * (h * 0.7) + h * 0.2);
+        
+        // Create gradient
+        const gradient = actx.createLinearGradient(0, h, 0, h - barH);
+        if (isActive) {
+          gradient.addColorStop(0, '#7c5cff');
+          gradient.addColorStop(1, '#9c7eff');
+        } else {
+          gradient.addColorStop(0, 'rgba(255,255,255,0.1)');
+          gradient.addColorStop(1, 'rgba(255,255,255,0.3)');
+        }
+        
+        actx.fillStyle = gradient;
+        actx.fillRect(x, h - barH, barW, barH);
+      }
+      
+      if (!aud.paused && !aud.ended) {
+        requestAnimationFrame(drawAudio);
+      }
+    }
+
+    aud.addEventListener('play', drawAudio);
+    aud.addEventListener('loadedmetadata', drawAudio);
+
+    function saveWatchProgress() {
+      const course = 'JavaScript Mastery 2025';
+      const p = Math.min(100, Math.round((vid.currentTime / (vid.duration || 1)) * 100));
+      Store.state.progress[course] = p;
+      Store.save('progress');
+      drawCharts();
+    }
+
+    // ============================= Code Playground =============================
+    function initCodePlayground() {
+      const codeInput = $('#codeInput');
+      const codeOutput = $('#codeOutput');
+      const runButton = $('#runCode');
+      const clearButton = $('#clearCode');
+      const languageSelect = $('#codeLanguage');
+
+      runButton.addEventListener('click', () => {
+        const code = codeInput.value;
+        const language = languageSelect.value;
+        executeCode(code, language);
+        playSound('click');
+      });
+
+      clearButton.addEventListener('click', () => {
+        codeInput.value = '';
+        codeOutput.textContent = 'Console cleared...';
+        playSound('click');
+      });
+
+      // Auto-save code
+      codeInput.addEventListener('input', () => {
+        localStorage.setItem('eds_playground_code', codeInput.value);
+      });
+
+      // Load saved code
+      const savedCode = localStorage.getItem('eds_playground_code');
+      if (savedCode) {
+        codeInput.value = savedCode;
+      }
+    }
+
+    function executeCode(code, language) {
+      const output = $('#codeOutput');
+      
+      try {
+        switch (language) {
+          case 'javascript':
+            executeJavaScript(code, output);
+            break;
+          case 'python':
+            output.textContent = 'Python execution not implemented in this demo.\nCode would be sent to server for execution.';
+            break;
+          case 'html':
+            executeHTML(code, output);
+            break;
+          case 'css':
+            output.textContent = 'CSS preview not implemented in this demo.\nWould show live styling preview.';
+            break;
+          default:
+            output.textContent = 'Language not supported';
+        }
+        
+        Store.addActivity('Code executed', `${language.toUpperCase()} code`, 3);
+      } catch (error) {
+        output.textContent = `Error: ${error.message}`;
+        playSound('error');
+      }
+    }
+
+    function executeJavaScript(code, output) {
+      // Capture console output
+      const originalLog = console.log;
+      const originalError = console.error;
+      const originalWarn = console.warn;
+      let logs = [];
+
+      console.log = (...args) => {
+        logs.push(`LOG: ${args.join(' ')}`);
+        originalLog.apply(console, args);
+      };
+
+      console.error = (...args) => {
+        logs.push(`ERROR: ${args.join(' ')}`);
+        originalError.apply(console, args);
+      };
+
+      console.warn = (...args) => {
+        logs.push(`WARN: ${args.join(' ')}`);
+        originalWarn.apply(console, args);
+      };
+
+      try {
+        // Execute the code
+        const result = eval(code);
+        if (result !== undefined) {
+          logs.push(`RESULT: ${result}`);
+        }
+        
+        output.textContent = logs.length > 0 ? logs.join('\n') : 'Code executed successfully (no output)';
+        playSound('success');
+      } catch (error) {
+        output.textContent = `ERROR: ${error.message}\n\n${logs.join('\n')}`;
+        playSound('error');
+      } finally {
+        // Restore original console methods
+        console.log = originalLog;
+        console.error = originalError;
+        console.warn = originalWarn;
+      }
+    }
+
+    function executeHTML(code, output) {
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.height = '200px';
+      iframe.style.border = '1px solid var(--border)';
+      iframe.style.borderRadius = '8px';
+      
+      output.innerHTML = '';
+      output.appendChild(iframe);
+      
+      iframe.srcdoc = code;
+      playSound('success');
+    }
+
+    // Code challenges
+    function loadChallenge(difficulty) {
+      const challenges = {
+        easy: {
+          title: 'Array Sum',
+          description: 'Write a function that returns the sum of all numbers in an array.',
+          template: `function arraySum(arr) {
+  // Your code here
+}
+
+// Test your function
+console.log(arraySum([1, 2, 3, 4, 5])); // Should output: 15`
+        },
+        medium: {
+          title: 'Binary Search',
+          description: 'Implement binary search algorithm.',
+          template: `function binarySearch(arr, target) {
+  // Your code here
+}
+
+// Test your function
+console.log(binarySearch([1, 3, 5, 7, 9], 5)); // Should output: 2`
+        },
+        hard: {
+          title: 'Graph DFS',
+          description: 'Implement depth-first search for a graph.',
+          template: `function dfs(graph, start, visited = new Set()) {
+  // Your code here
+}
+
+// Test your function
+const graph = { A: ['B', 'C'], B: ['A', 'D'], C: ['A'], D: ['B'] };
+console.log(dfs(graph, 'A'));`
+        }
+      };
+
+      const challenge = challenges[difficulty];
+      $('#codeInput').value = challenge.template;
+      toast(`Challenge loaded: ${challenge.title}`, 'info');
+      Store.addActivity('Challenge loaded', challenge.title, 1);
+      playSound('success');
+    }
+
+    // AI Code Assistant
+    $('#askCodeAI').addEventListener('click', () => {
+      const question = $('#codeQuestion').value.trim();
+      if (!question) return;
+
+      const responses = [
+        'This code creates a recursive function. Consider using memoization for better performance.',
+        'Great question! The key here is to understand the algorithm\'s time complexity.',
+        'I see you\'re working with arrays. Remember that array methods like map() and filter() are very useful.',
+        'This looks like a classic problem. Try breaking it down into smaller functions.',
+        'Consider edge cases: what happens with empty inputs or negative numbers?'
+      ];
+
+      const response = responses[Math.floor(Math.random() * responses.length)];
+      $('#codeAiResponse').textContent = response;
+      $('#codeQuestion').value = '';
+      
+      Store.addActivity('AI assistance', question.slice(0, 30) + '...', 2);
+      playSound('success');
+    });
+
+    // ============================= AI Chat System =============================
+    function initAIChat() {
+      $('#helpBot').addEventListener('click', () => {
+        showModal('aiModal');
+        playSound('click');
+      });
+
+      $('#aiModalInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendAiModalMessage();
+        }
+      });
+
+      $('#sendAiMessage').addEventListener('click', sendAiModalMessage);
+      $('#aiChatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          sendAiQuickMessage();
+        }
+      });
+    }
+
+    function sendAiModalMessage() {
+      const input = $('#aiModalInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      addAiMessage('user', message);
+      input.value = '';
+
+      // Simulate AI response
+      setTimeout(() => {
+        const response = generateAIResponse(message);
+        addAiMessage('ai', response);
+        playSound('success');
+      }, 1000);
+
+      Store.addActivity('AI chat', message.slice(0, 30) + '...', 1);
+    }
+
+    function sendAiQuickMessage() {
+      const input = $('#aiChatInput');
+      const message = input.value.trim();
+      if (!message) return;
+
+      const history = $('#aiChatHistory');
+      history.innerHTML += `
+        <div class="mb-2">
+          <strong>You:</strong> ${message}
+        </div>
+      `;
+
+      input.value = '';
+
+      setTimeout(() => {
+        const response = generateAIResponse(message);
+        history.innerHTML += `
+          <div class="mb-2">
+            <strong>AI:</strong> ${response}
+          </div>
+        `;
+        history.scrollTop = history.scrollHeight;
+        playSound('success');
+      }, 1000);
+    }
+
+    function addAiMessage(sender, message) {
+      const container = $('#aiChatContainer');
+      const messageEl = document.createElement('div');
+      messageEl.className = 'mb-3';
+      messageEl.innerHTML = `
+        <strong>${sender === 'user' ? 'You' : 'AI Assistant'}:</strong> ${message}
+      `;
+      container.appendChild(messageEl);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function generateAIResponse(message) {
+      const responses = {
+        'hello': 'Hello! I\'m here to help you with your learning journey. What would you like to know?',
+        'javascript': 'JavaScript is a versatile programming language! I recommend starting with variables, functions, and DOM manipulation.',
+        'help': 'I can help you with course recommendations, explain concepts, review your code, or answer questions about programming.',
+        'quiz': 'Practice makes perfect! Try taking quizzes regularly to reinforce your learning. Would you like me to create a custom quiz for you?',
+        'progress': 'Your progress looks great! Keep up the consistent learning. Focus areas for improvement might include practical projects.',
+        'default': 'That\'s a great question! Based on your current progress, I recommend focusing on practical projects to solidify your understanding.'
+      };
+
+      const lowerMessage = message.toLowerCase();
+      for (const [key, response] of Object.entries(responses)) {
+        if (key !== 'default' && lowerMessage.includes(key)) {
+          return response;
+        }
+      }
+
+      return responses.default;
+    }
+
+    function generateAIRecommendations() {
+      const recommendations = [
+        '🎯 Based on your JavaScript progress, try "Advanced React Patterns" next',
+        '💡 Your quiz scores suggest reviewing "Async Programming Fundamentals"',
+        '🚀 Ready for a challenge? Check out "Building REST APIs with Node.js"',
+        '📊 Strengthen your skills with "Data Structures and Algorithms"'
+      ];
+
+      const container = $('#aiRecommendations');
+      container.innerHTML = '';
+      
+      recommendations.slice(0, 2).forEach(rec => {
+        const el = document.createElement('div');
+        el.className = 'mb-2 p-2 bg-blue-500/10 rounded-lg text-sm';
+        el.textContent = rec;
+        container.appendChild(el);
+      });
+    }
+
+    // ============================= Enhanced Quiz System =============================
+    let quizStartTime = 0;
+    let quizAttemptCount = 0;
+    let quizTimer = null;
+
+    function initEnhancedQuiz() {
+      const form = $('#quizForm');
+      
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleQuizSubmission(form);
+      });
+
+      // Start timer when quiz begins
+      form.addEventListener('focusin', startQuizTimer, { once: true });
+    }
+
+    function startQuizTimer() {
+      quizStartTime = Date.now();
+      quizAttemptCount++;
+      $('#quizAttempts').textContent = `Attempt: ${quizAttemptCount}`;
+
+      quizTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+        const minutes = Math.floor(elapsed / 60);
+        const seconds = elapsed % 60;
+        $('#quizTimer').textContent = `Time: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+      }, 1000);
+    }
+
+    function handleQuizSubmission(form) {
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      clearInterval(quizTimer);
+      const timeElapsed = Math.floor((Date.now() - quizStartTime) / 1000);
+
+      let score = 0;
+      const feedback = [];
+
+      // Question 1 - Multiple choice
+      const q1 = form.q1.value;
+      if (q1 === 'constant') {
+        score++;
+        feedback.push('✅ Q1: Correct! const declares a constant value.');
+      } else {
+        feedback.push('❌ Q1: Incorrect. const declares a constant value that cannot be reassigned.');
+      }
+
+      // Question 2 - Text input
+      const a2 = form.q2.value.trim().toLowerCase();
+      if (a2 === 'push') {
+        score++;
+        feedback.push('✅ Q2: Correct! push() adds elements to the end of an array.');
+      } else {
+        feedback.push('❌ Q2: Incorrect. The answer is "push" - it adds elements to the end of an array.');
+      }
+
+      // Question 3 - Text input
+      const a3 = form.q3.value.trim();
+      if (a3 === '6') {
+        score++;
+        feedback.push('✅ Q3: Correct! 2 + 2 * 2 = 2 + 4 = 6 (order of operations).');
+      } else {
+        feedback.push('❌ Q3: Incorrect. Due to order of operations: 2 + 2 * 2 = 2 + 4 = 6.');
+      }
+
+      // Update UI
+      $('#quizScore').textContent = `Score: ${score}/3`;
+      $('#quizProgress').style.width = `${(score / 3) * 100}%`;
+
+      // Show detailed feedback
+      const feedbackEl = $('#quizFeedback');
+      const feedbackContent = $('#feedbackContent');
+      feedbackContent.innerHTML = feedback.map(f => `<p class="mb-2">${f}</p>`).join('');
+      feedbackEl.style.display = 'block';
+
+      // Calculate points based on score and time
+      const timeBonus = timeElapsed < 30 ? 10 : timeElapsed < 60 ? 5 : 0;
+      const points = (score * 10) + timeBonus;
+
+      toast(`Quiz completed! Score: ${score}/3 (${points} points)`, score >= 2 ? 'success' : 'info');
+      Store.addActivity('Quiz completed', `${score}/3 in ${timeElapsed}s`, points);
+
+      // Update study stats
+      Store.state.studyStats.quizzesTaken++;
+      Store.save('studyStats');
+
+      // Achievements
+      if (score === 3) {
+        Store.addAchievement('Perfect Score!', 'You got all quiz questions correct', '🎯');
+      }
+      if (timeElapsed < 30) {
+        Store.addAchievement('Speed Demon!', 'Completed quiz in under 30 seconds', '⚡');
+      }
+
+      playSound(score >= 2 ? 'success' : 'error');
+      drawSkillsRadar();
+    }
+
+    // Random Challenge Generator
+    $('#randomChallenge').addEventListener('click', () => {
+      const challenges = [
+        'What is the difference between let and const?',
+        'Explain how closures work in JavaScript',
+        'What are the different data types in JavaScript?',
+        'How do you handle errors in async/await?',
+        'Explain the concept of hoisting',
+        'What is the event loop in JavaScript?'
+      ];
+
+      const challenge = challenges[Math.floor(Math.random() * challenges.length)];
+      const challengeEl = $('#challengeQuestion');
+      challengeEl.innerHTML = `
+        <strong>💭 Quick Challenge:</strong>
+        <p class="mt-2">${challenge}</p>
+        <textarea class="input mt-2" rows="3" placeholder="Type your answer here..."></textarea>
+        <button class="btn primary mt-2" onclick="submitChallenge(this)">Submit Answer</button>
+      `;
+      challengeEl.style.display = 'block';
+      
+      Store.addActivity('Challenge generated', challenge.slice(0, 30) + '...', 2);
+      playSound('success');
+    });
+
+    function submitChallenge(btn) {
+      const answer = btn.previousElementSibling.value.trim();
+      if (answer.length > 10) {
+        toast('Great answer! Keep practicing to improve your skills.', 'success');
+        Store.addActivity('Challenge answered', answer.slice(0, 30) + '...', 5);
+        $('#challengeQuestion').style.display = 'none';
+        playSound('success');
+      } else {
+        toast('Try to provide a more detailed answer', 'info');
+        playSound('click');
+      }
+    }
+
+    // Skills Radar Chart
+    function drawSkillsRadar() {
+      const canvas = $('#skillsRadar');
+      const ctx = canvas.getContext('2d');
+      const w = canvas.width = canvas.clientWidth;
+      const h = canvas.height = 200;
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      const centerX = w / 2;
+      const centerY = h / 2;
+      const radius = Math.min(w, h) * 0.35;
+      
+      const skills = [
+        { name: 'JavaScript', value: 85 },
+        { name: 'HTML/CSS', value: 75 },
+        { name: 'React', value: 60 },
+        { name: 'Node.js', value: 45 },
+        { name: 'Algorithms', value: 70 },
+        { name: 'Debugging', value: 80 }
+      ];
+      
+      const angleStep = (Math.PI * 2) / skills.length;
+      
+      // Draw grid
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 5; i++) {
+        const r = (radius * i) / 5;
+        ctx.beginPath();
+        for (let j = 0; j < skills.length; j++) {
+          const angle = j * angleStep - Math.PI / 2;
+          const x = centerX + Math.cos(angle) * r;
+          const y = centerY + Math.sin(angle) * r;
+          if (j === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+      
+      // Draw axes
+      for (let i = 0; i < skills.length; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const x = centerX + Math.cos(angle) * radius;
+        const y = centerY + Math.sin(angle) * radius;
+        
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        
+        // Labels
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        const labelX = centerX + Math.cos(angle) * (radius + 20);
+        const labelY = centerY + Math.sin(angle) * (radius + 20);
+        ctx.fillText(skills[i].name, labelX, labelY);
+      }
+      
+      // Draw skill polygon
+      ctx.fillStyle = 'rgba(124,92,255,0.3)';
+      ctx.strokeStyle = 'rgba(124,92,255,0.8)';
+      ctx.lineWidth = 2;
+      
+      ctx.beginPath();
+      for (let i = 0; i < skills.length; i++) {
+        const angle = i * angleStep - Math.PI / 2;
+        const value = (skills[i].value / 100) * radius;
+        const x = centerX + Math.cos(angle) * value;
+        const y = centerY + Math.sin(angle) * value;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // ============================= Enhanced Dashboard Charts =============================
+    function drawCharts() {
+      drawBar($('#chartProgress').getContext('2d'), Store.state.progress);
+      drawLine($('#chartStreak').getContext('2d'), generateStreakData());
+      drawDonut($('#chartDonut').getContext('2d'), [
+        { label: 'Frontend', value: 45, color: '#7c5cff' },
+        { label: 'Backend', value: 25, color: '#30d158' },
+        { label: 'Data Science', value: 20, color: '#0a84ff' },
+        { label: 'Other', value: 10, color: '#ff9f0a' }
+      ]);
+      drawSkillsRadar();
+    }
+
+    function drawBar(ctx, data) {
+      const w = ctx.canvas.width = ctx.canvas.clientWidth;
+      const h = ctx.canvas.height = 200;
+      const keys = Object.keys(data);
+      const vals = Object.values(data);
+      const max = Math.max(100, ...vals);
+      const barW = Math.max(40, (w - 60) / keys.length - 20);
+      
+      ctx.clearRect(0, 0, w, h);
+      
+      // Background
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(0, 0, w, h);
+      
+      keys.forEach((k, i) => {
+        const x = 40 + i * (barW + 20);
+        const value = vals[i];
+        const barH = (value / max) * (h - 80);
+        
+        // Bar shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.1)';
+        ctx.fillRect(x + 2, h - 40 - barH + 2, barW, barH);
+        
+        // Bar gradient
+        const gradient = ctx.createLinearGradient(0, h - 40, 0, h - 40 - barH);
+        gradient.addColorStop(0, '#7c5cff');
+        gradient.addColorStop(1, '#9c7eff');
+        
+        ctx.fillStyle = gradient;
+        ctx.fillRect(x, h - 40 - barH, barW, barH);
+        
+        // Value label
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
+        ctx.font = 'bold 14px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${value}%`, x + barW / 2, h - 45 - barH);
+        
+        // Course name
+        ctx.font = '12px system-ui';
+        ctx.fillText(k.slice(0, 15), x + barW / 2, h - 15);
+      });
+    }
+
+    function drawLine(ctx, points) {
+      const w = ctx.canvas.width = ctx.canvas.clientWidth;
+      const h = ctx.canvas.height = 200;
+      ctx.clearRect(0, 0, w, h);
+      
+      if (points.length < 2) return;
+      
+      const max = Math.max(1, ...points);
+      const step = (w - 80) / (points.length - 1);
+      
+      // Grid lines
+      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+      ctx.lineWidth = 1;
+      for (let i = 1; i <= 5; i++) {
+        const y = 40 + (i * (h - 80)) / 5;
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(w - 40, y);
+        ctx.stroke();
+      }
+      
+      // Area fill
+      const gradient = ctx.createLinearGradient(0, h - 40, 0, 40);
+      gradient.addColorStop(0, 'rgba(124,92,255,0.3)');
+      gradient.addColorStop(1, 'rgba(124,92,255,0.1)');
+      
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.moveTo(40, h - 40);
+      points.forEach((v, i) => {
+        const x = 40 + i * step;
+        const y = h - 40 - (v / max) * (h - 80);
+        ctx.lineTo(x, y);
+      });
+      ctx.lineTo(w - 40, h - 40);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Line
+      ctx.strokeStyle = '#7c5cff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      points.forEach((v, i) => {
+        const x = 40 + i * step;
+        const y = h - 40 - (v / max) * (h - 80);
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        
+        // Data points
+        ctx.fillStyle = '#7c5cff';
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.stroke();
+      
+      // Labels
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted');
+      ctx.font = '12px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText('Last 7 days streak', 40, 25);
+    }
+
+    function drawDonut(ctx, segments) {
+      const w = ctx.canvas.width = ctx.canvas.clientWidth;
+      const h = ctx.canvas.height = 200;
+      ctx.clearRect(0, 0, w, h);
+      
+      const cx = w / 2;
+      const cy = h / 2;
+      const outerRadius = Math.min(w, h) / 2 - 20;
+      const innerRadius = outerRadius * 0.6;
+      const total = segments.reduce((sum, s) => sum + s.value, 0) || 1;
+      
+      let startAngle = -Math.PI / 2;
+      
+      segments.forEach((segment, i) => {
+        const sliceAngle = (segment.value / total) * (Math.PI * 2);
+        
+        // Segment
+        ctx.fillStyle = segment.color || `hsl(${(i * 60) % 360}, 70%, 60%)`;
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerRadius, startAngle, startAngle + sliceAngle);
+        ctx.arc(cx, cy, innerRadius, startAngle + sliceAngle, startAngle, true);
+        ctx.closePath();
+        ctx.fill();
+        
+        // Label
+        const labelAngle = startAngle + sliceAngle / 2;
+        const labelRadius = outerRadius + 15;
+        const labelX = cx + Math.cos(labelAngle) * labelRadius;
+        const labelY = cy + Math.sin(labelAngle) * labelRadius;
+        
+        ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
+        ctx.font = '12px system-ui';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${segment.label} ${segment.value}%`, labelX, labelY);
+        
+        startAngle += sliceAngle;
+      });
+      
+      // Center text
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
+      ctx.font = 'bold 16px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('Skills', cx, cy - 5);
+      ctx.font = '12px system-ui';
+      ctx.fillText('Distribution', cx, cy + 10);
+    }
+
+    function generateStreakData() {
+      // Generate more realistic streak data
+      const baseStreak = Store.state.studyStats.streakDays;
+      const data = [];
+      
+      for (let i = 6; i >= 0; i--) {
+        const variance = Math.random() * 4 - 2; // -2 to +2
+        const value = Math.max(0, baseStreak - i + variance);
+        data.push(Math.round(value));
+      }
+      
+      return data;
+    }
+
+    // ============================= Enhanced Activity Tracking =============================
+    function renderActivity() {
+      const tb = $('#activityTable tbody');
+      tb.innerHTML = '';
+      
+      Store.state.activity.forEach(activity => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="text-sm">${activity.when}</td>
+          <td class="font-bold">${activity.action}</td>
+          <td class="text-sm muted">${activity.details || ''}</td>
+          <td class="font-bold text-green-600">+${activity.points || 0}</td>
+        `;
+        tb.appendChild(tr);
+      });
+    }
+
+    // ============================= Modal System =============================
+    function showModal(modalId) {
+      const modal = $('#' + modalId);
+      modal.classList.add('show');
+    }
+
+    function closeModal(modalId) {
+      const modal = $('#' + modalId);
+      modal.classList.remove('show');
+      playSound('click');
+    }
+
+    // Close modals when clicking outside
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('show');
+      }
+    });
+
+    // ============================= Notification System =============================
+    $('#notificationBtn').addEventListener('click', () => {
+      const panel = $('#notificationPanel');
+      const isVisible = panel.classList.contains('show');
+      
+      if (isVisible) {
+        closeNotifications();
+      } else {
+        showNotifications();
+      }
+    });
+
+    function showNotifications() {
+      const panel = $('#notificationPanel');
+      const list = $('#notificationList');
+      
+      list.innerHTML = '';
+      
+      if (Store.state.notifications.length === 0) {
+        list.innerHTML = '<p class="muted text-sm">No notifications yet</p>';
+      } else {
+        Store.state.notifications.forEach(notif => {
+          const el = document.createElement('div');
+          el.className = `mb-3 p-2 rounded-lg border ${notif.read ? 'opacity-60' : ''}`;
+          el.innerHTML = `
+            <div class="text-sm">${notif.message}</div>
+            <div class="text-xs muted">${new Date(notif.timestamp).toLocaleString()}</div>
+          `;
+          
+          el.addEventListener('click', () => {
+            notif.read = true;
+            Store.save('notifications');
+            updateNotificationBadge();
+            el.classList.add('opacity-60');
+          });
+          
+          list.appendChild(el);
+        });
+      }
+      
+      panel.classList.add('show');
+      playSound('click');
+    }
+
+    function closeNotifications() {
+      $('#notificationPanel').classList.remove('show');
+      playSound('click');
+    }
+
+    // ============================= Global Search =============================
+    $('#globalSearch').addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      if (query.length < 2) return;
+      
+      // Simulate search results
+      const results = [
+        'JavaScript Mastery 2025',
+        'AI & Machine Learning',
+        'Code Playground',
+        'Quiz System'
+      ].filter(item => item.toLowerCase().includes(query));
+      
+      if (results.length > 0) {
+        console.log('Search results:', results);
+        // In a real app, show search dropdown
+      }
+    });
+
+    // ============================= Settings & Preferences =============================
+    function adjustFontSize(change) {
+      const root = document.documentElement;
+      const currentSize = parseFloat(getComputedStyle(root).fontSize);
+      const newSize = Math.max(12, Math.min(20, currentSize + change));
+      root.style.fontSize = newSize + 'px';
+      localStorage.setItem('eds_fontSize', newSize);
+      playSound('click');
+    }
+
+    // Load saved font size
+    const savedFontSize = localStorage.getItem('eds_fontSize');
+    if (savedFontSize) {
+      document.documentElement.style.fontSize = savedFontSize + 'px';
+    }
+
+    // Settings event listeners
+    $('#soundEffects').addEventListener('change', (e) => {
+      Store.state.settings.soundEffects = e.target.checked;
+      Store.save('settings');
+      if (e.target.checked) playSound('success');
+    });
+
+    $('#backgroundMusic').addEventListener('change', (e) => {
+      Store.state.settings.backgroundMusic = e.target.checked;
+      Store.save('settings');
+      // In a real app, start/stop background music
+    });
+
+    $('#exportData').addEventListener('click', () => {
+      const data = {
+        progress: Store.state.progress,
+        activity: Store.state.activity,
+        achievements: Store.state.achievements,
+        notes: Store.state.notes,
+        bookmarks: Store.state.bookmarks
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'edustream-data.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      toast('Data exported successfully!', 'success');
+      Store.addActivity('Data export', 'Full backup created');
+      playSound('success');
+    });
+
+    $('#resetApp').addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+        localStorage.clear();
+        toast('App reset! Reloading...', 'info');
+        setTimeout(() => location.reload(), 2000);
+      }
+    });
+
+    // ============================= Course Search & Filter =============================
+    function initCourseFilters() {
+      const searchInput = $('#courseSearch');
+      const filterSelect = $('#courseFilter');
+      const categorySelect = $('#courseCategory');
+
+      searchInput.addEventListener('input', filterCourses);
+      filterSelect.addEventListener('change', filterCourses);
+      categorySelect.addEventListener('change', filterCourses);
+    }
+
+    function filterCourses() {
+      const search = $('#courseSearch').value.toLowerCase();
+      const filter = $('#courseFilter').value;
+      const category = $('#courseCategory').value;
+      
+      // In a real app, this would filter the course grid
+      console.log('Filtering courses:', { search, filter, category });
+      
+      // Show feedback
+      if (search) {
+        toast(`Searching for "${search}"...`, 'info');
+        Store.addActivity('Course search', search);
+      }
+    }
+
+    // ============================= Online/Offline Status =============================
+    function updateOnlineStatus() {
+      const badge = $('#statusBadge');
+      if (navigator.onLine) {
+        badge.textContent = '🟢 Online';
+        badge.className = 'badge new';
+      } else {
+        badge.textContent = '🔴 Offline';
+        badge.className = 'badge';
+      }
+    }
+
+    window.addEventListener('online', () => {
+      updateOnlineStatus();
+      toast('Connection restored!', 'success');
+      Store.addNotification('You\'re back online! Syncing data...');
+    });
+
+    window.addEventListener('offline', () => {
+      updateOnlineStatus();
+      toast('You\'re offline. Some features may be limited.', 'info');
+    });
+
+    // ============================= Initialization =============================
+    function init() {
+      console.log('🚀 EduStream Advanced Platform Initializing...');
+      
+      // Core systems
+      applyTheme();
+      buildTabs();
+      renderAuth();
+      renderCart();
+      updateAuthStatus();
+      renderActivity();
+      renderNotes();
+      
+      // Enhanced features
+      initCodePlayground();
+      initAIChat();
+      initEnhancedQuiz();
+      initCourseFilters();
+      
+      // Charts and analytics
+      drawCharts();
+      generateAIRecommendations();
+      
+      // UI state
+      updateCartCount();
+      updateNotificationBadge();
+      updateOnlineStatus();
+      
+      // Restore volume
+      $('#volume').value = vid.volume || 0.5;
+      
+      // Load settings
+      $('#soundEffects').checked = Store.state.settings.soundEffects;
+      $('#backgroundMusic').checked = Store.state.settings.backgroundMusic;
+      
+      // Welcome message for first-time users
+      if (!localStorage.getItem('eds_welcomed')) {
+        setTimeout(() => {
+          Store.addNotification('🎉 Welcome to EduStream Advanced! Explore all the new features.');
+          localStorage.setItem('eds_welcomed', 'true');
+        }, 2000);
+      }
+      
+      // Update study stats
+      $('#enrolledCount').textContent = Object.keys(Store.state.progress).length;
+      $('#studyHours').textContent = (47.5 + Math.random() * 10).toFixed(1) + 'h';
+      $('#quizAvg').textContent = Math.round(78 + Math.random() * 15) + '%';
+      $('#streakDays').textContent = Store.state.studyStats.streakDays;
+      
+      console.log('✅ EduStream Advanced Platform Ready!');
+      
+      // Show ready notification
+      setTimeout(() => {
+        toast('Platform loaded! Ready to learn 🚀', 'success');
+      }, 1000);
+    }
+
+    // Start the application
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Global error handling
+    window.addEventListener('error', (e) => {
+      console.error('App Error:', e.error);
+      toast('Something went wrong. Please try again.', 'error');
+    });
+
+    // Service Worker for PWA (basic simulation)
+    if ('serviceWorker' in navigator) {
+      console.log('PWA features would be available');
+    }
+  </script>
+</body>
+</html>
